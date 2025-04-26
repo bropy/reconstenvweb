@@ -147,7 +147,6 @@ function RightPanel({}: Props) {
                     >
                       {getIcon(key)}
 
-                      <div className="w-2 h-2 min-w-2 min-h-2 bg-amber-500 rounded-full"></div>
                       <span className="text-gray-700 text-sm">
                         {place.name}
                       </span>
