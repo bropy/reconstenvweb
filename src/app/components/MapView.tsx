@@ -10,6 +10,7 @@ import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
 
 interface ZoneData {
+  id: string;
   points: { lat: number; lng: number }[];
   damage: number;
 }
@@ -56,6 +57,7 @@ export default function MapView() {
     });
 
     const newZone: ZoneData = {
+      id: Date.now().toString(),
       damage: percent,
       points: currentZone.points,
     };
@@ -64,6 +66,31 @@ export default function MapView() {
     setCurrentZone(null);
   };
 
+  const onDeleted = (e: any) => {
+    const layers = e.layers;
+    const layersArray: L.Layer[] = [];
+  
+    layers.eachLayer((layer: L.Layer) => {
+      layersArray.push(layer);
+    });
+  
+    setZones((prevZones) =>
+      prevZones.filter((zone) => {
+        return !layersArray.some((layer) => {
+          const latlngs = (layer as any).getLatLngs()[0];
+          const layerPoints = latlngs.map((point: { lat: number; lng: number }) => ({
+            lat: point.lat,
+            lng: point.lng,
+          }));
+  
+          if (zone.points.length !== layerPoints.length) return false;
+          return zone.points.every((p, idx) => p.lat === layerPoints[idx].lat && p.lng === layerPoints[idx].lng);
+        });
+      })
+    );
+  };
+  
+  
   
   const handleSubmit = () => {
     const dataToSend = {
@@ -75,7 +102,6 @@ export default function MapView() {
     // Тут можна виконати запит на сервер
     // fetch("/your-endpoint", { method: "POST", body: JSON.stringify(dataToSend) })
 
-    setZones([]);
   };
 
   return (
@@ -93,6 +119,7 @@ export default function MapView() {
           <EditControl
             position="topright"
             onCreated={onCreated}
+            onDeleted={onDeleted}
             draw={{
               rectangle: true,
               polygon: true,
