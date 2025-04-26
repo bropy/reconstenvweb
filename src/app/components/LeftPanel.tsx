@@ -4,8 +4,8 @@ type Props = {};
 
 function LeftPanel({}: Props) {
   return (
-    <div className=" z-50 h-full bg-amber-50 w-64">
-      SidePanel
+    <div className=" z-50 h-full bg-amber-50 w-72">
+      
       <TimeLineSelector />
     </div>
   );
