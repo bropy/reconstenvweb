@@ -3,6 +3,53 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import places from "../data/Places_response.json";
+import {
+  FaSchool,
+  FaHospital,
+  FaClinicMedical,
+  FaUniversity,
+  FaBan,
+  FaEnvelope,
+  FaShieldAlt,
+  FaFireExtinguisher,
+  FaTree,
+  FaShoppingCart,
+} from "react-icons/fa";
+import { FaPills } from "react-icons/fa6"; // Фарм іконка (аптека)
+
+const getIcon = (category: string) => {
+  switch (category) {
+    case "schools":
+      return <FaSchool className="text-blue-500" />;
+    case "hospitals":
+      return <FaHospital className="text-red-500" />;
+    case "pharmacies":
+      return <FaPills className="text-green-500" />;
+    case "kindergartens":
+      return <FaSchool className="text-pink-400" />;
+    case "clinics":
+      return <FaClinicMedical className="text-purple-400" />;
+    case "universities":
+      return <FaUniversity className="text-indigo-400" />;
+    case "banks":
+      return <FaBan className="text-yellow-500" />;
+    case "post_offices":
+      return <FaEnvelope className="text-orange-400" />;
+    case "police_stations":
+      return <FaShieldAlt className="text-blue-700" />;
+    case "fire_stations":
+      return <FaFireExtinguisher className="text-red-700" />;
+    case "parks":
+      return <FaTree className="text-green-700" />;
+    case "supermarkets":
+      return <FaShoppingCart className="text-amber-600" />;
+    default:
+      return (
+        <div className="w-2 h-2 min-w-2 min-h-2 bg-amber-500 rounded-full" />
+      ); // маленьке коло, якщо іконки нема
+  }
+};
+
 
 type Props = {};
 
@@ -25,6 +72,40 @@ function RightPanel({}: Props) {
     }));
   };
 
+  const getIcon = (category: string) => {
+    switch (category) {
+      case "schools":
+        return <FaSchool className="text-blue-500" />;
+      case "hospitals":
+        return <FaHospital className="text-red-500" />;
+      case "pharmacies":
+        return <FaPills className="text-green-500" />;
+      case "kindergartens":
+        return <FaSchool className="text-pink-400" />;
+      case "clinics":
+        return <FaClinicMedical className="text-purple-400" />;
+      case "universities":
+        return <FaUniversity className="text-indigo-400" />;
+      case "banks":
+        return <FaBan className="text-yellow-500" />;
+      case "post_offices":
+        return <FaEnvelope className="text-orange-400" />;
+      case "police_stations":
+        return <FaShieldAlt className="text-blue-700" />;
+      case "fire_stations":
+        return <FaFireExtinguisher className="text-red-700" />;
+      case "parks":
+        return <FaTree className="text-green-700" />;
+      case "supermarkets":
+        return <FaShoppingCart className="text-amber-600" />;
+      default:
+        return (
+          <div className="w-2 h-2 min-w-2 min-h-2 bg-amber-500 rounded-full" />
+        ); // маленьке коло, якщо іконки нема
+    }
+  };
+
+
   return (
     <div className="w-64 flex flex-col p-4 overflow-auto max-h-screen bg-white shadow-2xl rounded-l-2xl">
       <h1 className="text-2xl font-bold text-gray-700 mb-6">Кількість будівель</h1>
@@ -45,25 +126,33 @@ function RightPanel({}: Props) {
             >
               <div className="flex justify-between items-center">
                 <h2 className="text-md font-semibold text-blue-700">{key}</h2>
-                <div className="text-sm text-blue-500">Count: {value.count}</div>
+                <div className="text-sm text-blue-500">
+                  Count: {value.count}
+                </div>
               </div>
             </motion.div>
 
             <div className="flex flex-col pl-2">
               <AnimatePresence>
-                {filteredItems.slice(0, visibleCount).map((place: any, index: number) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.3 }}
-                    className="flex items-center gap-2 bg-amber-100 hover:bg-amber-200 transition-all mb-2 rounded-lg p-2 shadow-sm cursor-pointer"
-                  >
-                    <div className="w-2 h-2 min-w-2 min-h-2 bg-amber-500 rounded-full"></div>
-                    <span className="text-gray-700 text-sm">{place.name}</span>
-                  </motion.div>
-                ))}
+                {filteredItems
+                  .slice(0, visibleCount)
+                  .map((place: any, index: number) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.3 }}
+                      className="flex items-center gap-2 bg-amber-100 hover:bg-amber-200 transition-all mb-2 rounded-lg p-2 shadow-sm cursor-pointer"
+                    >
+                      {getIcon(key)}
+
+                      <div className="w-2 h-2 min-w-2 min-h-2 bg-amber-500 rounded-full"></div>
+                      <span className="text-gray-700 text-sm">
+                        {place.name}
+                      </span>
+                    </motion.div>
+                  ))}
               </AnimatePresence>
 
               <div className="flex flex-col items-center gap-1 mt-2">
