@@ -73,38 +73,39 @@ function RightPanel({}: Props) {
   };
 
   const getIcon = (category: string) => {
-    switch (category) {
-      case "schools":
-        return <FaSchool className="text-blue-500" />;
-      case "hospitals":
-        return <FaHospital className="text-red-500" />;
-      case "pharmacies":
-        return <FaPills className="text-green-500" />;
-      case "kindergartens":
-        return <FaSchool className="text-pink-400" />;
-      case "clinics":
-        return <FaClinicMedical className="text-purple-400" />;
-      case "universities":
-        return <FaUniversity className="text-indigo-400" />;
-      case "banks":
-        return <FaBan className="text-yellow-500" />;
-      case "post_offices":
-        return <FaEnvelope className="text-orange-400" />;
-      case "police_stations":
-        return <FaShieldAlt className="text-blue-700" />;
-      case "fire_stations":
-        return <FaFireExtinguisher className="text-red-700" />;
-      case "parks":
-        return <FaTree className="text-green-700" />;
-      case "supermarkets":
-        return <FaShoppingCart className="text-amber-600" />;
-      default:
-        return (
-          <div className="w-2 h-2 min-w-2 min-h-2 bg-amber-500 rounded-full" />
-        ); // маленьке коло, якщо іконки нема
-    }
-  };
+  const commonClasses = "w-5 h-5 min-w-5 min-h-5 text-blue-500"; // Ось тут ставимо фіксований розмір
 
+  switch (category) {
+    case "schools":
+      return <FaSchool className={`${commonClasses} text-blue-500`} />;
+    case "hospitals":
+      return <FaHospital className={`${commonClasses} text-red-500`} />;
+    case "pharmacies":
+      return <FaPills className={`${commonClasses} text-green-500`} />;
+    case "kindergartens":
+      return <FaSchool className={`${commonClasses} text-pink-400`} />;
+    case "clinics":
+      return <FaClinicMedical className={`${commonClasses} text-purple-400`} />;
+    case "universities":
+      return <FaUniversity className={`${commonClasses} text-indigo-400`} />;
+    case "banks":
+      return <FaBan className={`${commonClasses} text-yellow-500`} />;
+    case "post_offices":
+      return <FaEnvelope className={`${commonClasses} text-orange-400`} />;
+    case "police_stations":
+      return <FaShieldAlt className={`${commonClasses} text-blue-700`} />;
+    case "fire_stations":
+      return <FaFireExtinguisher className={`${commonClasses} text-red-700`} />;
+    case "parks":
+      return <FaTree className={`${commonClasses} text-green-700`} />;
+    case "supermarkets":
+      return <FaShoppingCart className={`${commonClasses} text-amber-600`} />;
+    default:
+      return (
+        <div className="w-2 h-2 min-w-2 min-h-2 bg-amber-500 rounded-full" />
+      );
+  }
+};
 
   return (
     <div className="w-64 flex flex-col p-4 overflow-auto max-h-screen bg-white shadow-2xl rounded-l-2xl">
