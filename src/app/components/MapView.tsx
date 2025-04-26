@@ -75,7 +75,6 @@ export default function MapView() {
     // Тут можна виконати запит на сервер
     // fetch("/your-endpoint", { method: "POST", body: JSON.stringify(dataToSend) })
 
-    setZones([]);
   };
 
   return (
