@@ -1,13 +1,15 @@
 // components/Footer.tsx
 'use client';
+import Logo from "./Logo";
 
 import { FaLinkedin } from "react-icons/fa";
 import { FaFacebookSquare } from "react-icons/fa";
 import { FaYoutubeSquare } from "react-icons/fa";
+import Image from "next/image";
 
 export default function Footer() {
   return (
-    <footer className=" bg-indigo-800 text-white pt-6 pb-2">
+    <footer className=" bg-indigo-900 text-white pt-6 pb-2">
       <div className="container mx-auto flex justify-between items-center px-6">
         {/* Лінки */}
         <div className="flex space-x-6 flex-col">
@@ -15,8 +17,8 @@ export default function Footer() {
           <FooterLink text="Контакти" />
           <FooterLink text="Політика конфіденційності" />
         </div>
-        {/* Логотип або текст */}
-        <h1 className="text-2xl font-semibold">UrbanInvest</h1>
+
+        <Logo />
 
         <div className="flex space-x-6 ">
           <FaLinkedin className="w-10 h-10 m text-white hover:text-indigo-300" />

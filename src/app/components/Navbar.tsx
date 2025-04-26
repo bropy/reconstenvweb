@@ -1,12 +1,11 @@
-'use client';
+"use client";
+import Logo from "./Logo"
 
 export default function Navbar() {
   return (
     <nav className="w-full h-16 bg-gradient-to-t from-indigo-1200 to-indigo-1300 text-white backdrop-blur-md shadow-md flex items-center justify-between px-6 md:px-8 z-50 rounded-b-3xl">
-      <div className="text-3xl font-bold tracking-wide font-sans ml-18">
-        UrbanInvest
-      </div>
-
+      <Logo/>
+      
       <div className="flex space-x-8 mr-24">
         <NavButton text="Допомога" />
         <NavButton text="Партнерам" />
