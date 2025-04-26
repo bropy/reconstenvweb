@@ -2,14 +2,12 @@
 
 export default function Navbar() {
   return (
-    <nav className="w-full h-14 bg-white/90 backdrop-blur-md shadow-lg flex items-center justify-between px-6 md:px-8 z-50">
-      {/* Логотип */}
-      <div className="text-xl font-semibold text-indigo-600 tracking-wide">
-        Логотип
+    <nav className="w-full h-16 bg-gradient-to-r from-indigo-600 to-indigo-1000 text-white backdrop-blur-md shadow-md flex items-center justify-between px-6 md:px-8 z-50 rounded-b-3xl">
+      <div className="text-3xl font-bold tracking-wide font-sans ml-18">
+        UrbanInvest
       </div>
 
-      {/* Кнопки */}
-      <div className="flex space-x-6">
+      <div className="flex space-x-8 mr-24">
         <NavButton text="Допомога" />
         <NavButton text="Партнерам" />
         <NavButton text="ОВДП" />
@@ -21,12 +19,11 @@ export default function Navbar() {
 // Окрема кнопка для Navbar-а
 function NavButton({ text }: { text: string }) {
   return (
-    <button className="text-gray-800 font-medium hover:text-indigo-500 transition-colors duration-300 relative group">
-      {/* Текст кнопки */}
-      {text}
+    <button className="relative group text-lg font-medium hover:text-indigo-300 transition-colors duration-300">
+      <span className="z-10">{text}</span>
 
       {/* Лінія під кнопкою */}
-      <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-indigo-500 group-hover:w-full transition-all duration-300"></span>
+      <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-indigo-300 group-hover:w-full transition-all duration-300"></span>
     </button>
   );
 }
