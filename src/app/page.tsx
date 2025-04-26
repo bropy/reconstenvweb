@@ -4,6 +4,7 @@ import DashBoard from "./components/DashBoard";
 import NewBoardMenu from "./components/NewBoardMenu";
 import { useState } from "react";
 import { motion } from "framer-motion"; 
+import Footer from "./components/Footer";
 
 export default function Home() {
   const [open, setOpen] = useState(false);
@@ -31,6 +32,7 @@ export default function Home() {
       {/* Меню для створення нового проекту */}
       <NewBoardMenu open={open} setOpen={setOpen} />
 
+      <Footer/>
     </div>
   );
 }
