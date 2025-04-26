@@ -74,10 +74,8 @@ export default function MapView() {
       layersArray.push(layer);
     });
   
-    // Видаляємо з масиву зон ті, чиї точки співпадають із видаленими
     setZones((prevZones) =>
       prevZones.filter((zone) => {
-        // Якщо жодна з видалених зон не має такі самі точки — залишаємо зону
         return !layersArray.some((layer) => {
           const latlngs = (layer as any).getLatLngs()[0];
           const layerPoints = latlngs.map((point: { lat: number; lng: number }) => ({
@@ -85,7 +83,6 @@ export default function MapView() {
             lng: point.lng,
           }));
   
-          // Перевіряємо співпадіння всіх точок
           if (zone.points.length !== layerPoints.length) return false;
           return zone.points.every((p, idx) => p.lat === layerPoints[idx].lat && p.lng === layerPoints[idx].lng);
         });

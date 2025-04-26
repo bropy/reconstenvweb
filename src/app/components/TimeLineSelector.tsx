@@ -9,7 +9,7 @@ export default function TimeLineSelector() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   return (
-    <div className="bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-2xl w-80 flex flex-col items-center space-y-6">
+    <div className="bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-2xl w-full flex flex-col items-center space-y-6">
       <h2 className="text-xl font-bold text-gray-800">TimeLine</h2>
 
       <div className="relative flex flex-col items-start w-full">
