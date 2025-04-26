@@ -219,9 +219,12 @@ export default function MapView() {
         style={{ height: "100vh", width: "100%", zIndex: 0  }}
       >
         <TileLayer
-          attribution="&copy; OpenStreetMap contributors"
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
+  url="https://api.maptiler.com/maps/streets-v2-dark/{z}/{x}/{y}.png?key=9aiMJwCT9cravYWI2zLA"
+  attribution="&copy; OpenStreetMap contributors &copy; MapTiler"
+  tileSize={512}
+  zoomOffset={-1}
+/>
+
         <FeatureGroup ref={featureGroupRef}>
           <EditControl
             position="topright"
