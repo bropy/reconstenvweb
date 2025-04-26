@@ -16,7 +16,7 @@ import {
   FaTree,
   FaShoppingCart,
 } from "react-icons/fa";
-import { FaPills } from "react-icons/fa6";
+import { FaPills } from "react-icons/fa6"; // Фарм іконка (аптека)
 
 const getIcon = (category: string) => {
   const commonClasses = "w-5 h-5 min-w-5 min-h-5";
