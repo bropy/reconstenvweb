@@ -1,49 +1,56 @@
-"use client";
+'use client';
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 
-const steps = ["Будинки", "Магазини", "Лікарні", "Школи"];
+const steps = ["Будинки", "Школи", "Дороги", "Лікарні"];
 
 export default function TimeLineSelector() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   return (
-    <div className="bg-gray-300 p-2 rounded-md w-64 flex flex-col items-center">
-      <h2 className="mb-4 bg-gray-500 text-white w-full text-center py-2 rounded-md">
-        TimeLine
-      </h2>
-      <div className="relative flex flex-col items-center w-full">
+    <div className="bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-2xl w-80 flex flex-col items-center space-y-6">
+      <h2 className="text-xl font-bold text-gray-800">TimeLine</h2>
+
+      <div className="relative flex flex-col items-start w-full">
+        {/* Вертикальна лінія */}
+        <div className="absolute top-6 left-7 w-1 bg-gray-300 h-[calc(100%-24px)] rounded-full" />
+
         {steps.map((step, index) => (
-          <div
+          <motion.div
             key={index}
-            className="flex items-center w-full mb-4 relative cursor-pointer ms-0"
+            className="flex items-center w-full mb-8 last:mb-0 cursor-pointer"
+            whileHover={{ scale: 1.03 }}
+            style={{ originX: 0 }} // <--- додано!
             onClick={() => setCurrentIndex(index)}
           >
-            {index != 0 && (
-              <div className="absolute top-0 left-4 w-2 h-5 bg-gray-600" />
-            )}
-
-            {index != (steps.length - 1) && (
-              <div className="absolute top-4 left-4 w-2 h-10 bg-gray-600" />
-            )}
-            {/* Крапка */}
-            <div
-              className={`z-10 w-6 h-6 rounded-full flex items-center justify-center text-white ${
-                currentIndex === index ? "bg-sky-600" : "bg-black"
-              } ml-2`}
+            {/* Крапка з номером */}
+            <motion.div
+              animate={{
+                backgroundColor: currentIndex === index ? "#0ea5e9" : "#9ca3af",
+                scale: currentIndex === index ? 1.2 : 1,
+                boxShadow: currentIndex === index
+                  ? "0 0 10px rgba(14, 165, 233, 0.6)"
+                  : "none",
+              }}
+              transition={{ type: "spring", stiffness: 300 }}
+              className="z-10 w-8 h-8 min-w-8 min-h-8 rounded-full flex items-center justify-center text-white text-sm font-bold ml-[14px]"
             >
               {index + 1}
-            </div>
+            </motion.div>
 
-            {/* Текст */}
-            <div
-              className={`ml-2 p-2 rounded-md flex-1 ${
-                currentIndex === index ? "bg-sky-200" : ""
-              }`}
+            {/* Текст справа */}
+            <motion.div
+              animate={{
+                backgroundColor: currentIndex === index ? "rgba(14, 165, 233, 0.15)" : "transparent",
+                color: currentIndex === index ? "#0ea5e9" : "#374151",
+              }}
+              transition={{ duration: 0.3 }}
+              className="ml-6 px-4 py-2 rounded-lg text-sm font-medium w-full"
             >
               {step}
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         ))}
       </div>
     </div>
