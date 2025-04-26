@@ -21,6 +21,7 @@ export default function TimeLineSelector() {
             key={index}
             className="flex items-center w-full mb-8 last:mb-0 cursor-pointer"
             whileHover={{ scale: 1.03 }}
+            style={{ originX: 0 }} // <--- додано!
             onClick={() => setCurrentIndex(index)}
           >
             {/* Крапка з номером */}
@@ -33,7 +34,7 @@ export default function TimeLineSelector() {
                   : "none",
               }}
               transition={{ type: "spring", stiffness: 300 }}
-              className="z-10 w-8 h-8 min-w-8 min-h-8 rounded-full flex items-center justify-center text-white text-sm font-bold ml-3"
+              className="z-10 w-8 h-8 min-w-8 min-h-8 rounded-full flex items-center justify-center text-white text-sm font-bold ml-[14px]"
             >
               {index + 1}
             </motion.div>
