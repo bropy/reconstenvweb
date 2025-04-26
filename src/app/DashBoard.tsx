@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import Link from "next/link";
 
 type Project = {
   id: number;
@@ -33,7 +34,7 @@ function DashBoard() {
   }, []);
 
   return (
-    <div className="m-2 rounded-md">
+    <Link className="m-2 rounded-md" href="/map">
       <div className="flex justify-between items-center bg-amber-100 rounded-md p-2">
         <h1 className="font-bold text-2xl">DashBoard</h1>
         <button className="bg-amber-200 rounded-xl p-2">Create new</button>
@@ -53,7 +54,7 @@ function DashBoard() {
           <div className="text-center mb-2">No projects found</div>
         )}
       </div>
-    </div>
+    </Link>
   );
 }
 
