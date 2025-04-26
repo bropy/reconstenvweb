@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { MapContainer, TileLayer, FeatureGroup } from "react-leaflet";
 import { EditControl } from "react-leaflet-draw";
+import jsPDF from "jspdf";
 import L from "leaflet";
 import { motion } from "framer-motion";
 import { ZoneData, AnalysisResponse, DamageAnalysis } from "../types/type";
@@ -134,7 +135,31 @@ export default function MapView() {
       facilitiesByDamage
     };
   };
-
+  const handleGeneratePDF = () => {
+    if (!analysisData || !damageAnalysis) return;
+  
+    const doc = new jsPDF();
+    
+    doc.setFontSize(18);
+    doc.text("Звіт про пошкодження інфраструктури", 10, 20);
+  
+    doc.setFontSize(12);
+    doc.text(`Місто: Харків`, 10, 35);
+  
+    doc.text(`Пошкоджені об'єкти: ${damageAnalysis.damagedFacilities}`, 10, 45);
+    doc.text(`Приблизна вартість відновлення: ${damageAnalysis.approximateReconstructionCost} млн грн`, 10, 55);
+    doc.text(`Приблизний час відновлення: ~${damageAnalysis.approximateReconstructionTime} міс.`, 10, 65);
+  
+    doc.text("Розподіл об'єктів за ступенем пошкодження:", 10, 80);
+  
+    let y = 90;
+    Object.entries(damageAnalysis.facilitiesByDamage).forEach(([key, value]) => {
+      doc.text(`- ${key}: ${value}`, 15, y);
+      y += 10;
+    });
+  
+    doc.save(`damage_report_${Date.now()}.pdf`);
+  };
   const handleSubmit = async () => {
     if (zones.length === 0) return;
     
@@ -256,17 +281,37 @@ export default function MapView() {
       )}
 
       {damageAnalysis && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="absolute top-6 right-6 bg-white/90 backdrop-blur-md p-4 rounded-xl shadow-lg z-[999] max-w-xs"
-        >
-          <h3 className="font-bold text-lg mb-2">Результати аналізу</h3>
-          <p className="text-sm mb-1">Пошкоджені об'єкти: <span className="font-semibold">{damageAnalysis.damagedFacilities}</span></p>
-          <p className="text-sm mb-1">Приблизна вартість: <span className="font-semibold">{damageAnalysis.approximateReconstructionCost} млн грн</span></p>
-          <p className="text-sm">Час відновлення: <span className="font-semibold">~{damageAnalysis.approximateReconstructionTime} міс.</span></p>
-        </motion.div>
+        <>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="absolute top-6 right-6 bg-black/90 backdrop-blur-md p-4 rounded-xl shadow-lg z-[999] max-w-xs text-white"
+          >
+            <h3 className="font-bold text-lg mb-2">Результати аналізу</h3>
+            <p className="text-sm mb-1">
+              Пошкоджені об'єкти: <span className="font-semibold">{damageAnalysis.damagedFacilities}</span>
+            </p>
+            <p className="text-sm mb-1">
+              Приблизна вартість: <span className="font-semibold">{damageAnalysis.approximateReconstructionCost} млн грн</span>
+            </p>
+            <p className="text-sm">
+              Час відновлення: <span className="font-semibold">~{damageAnalysis.approximateReconstructionTime} міс.</span>
+            </p>
+          </motion.div>
+
+          {/* НОВА КНОПКА */}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleGeneratePDF}
+            className="absolute top-[200px] right-6 bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg shadow-lg z-[999]"
+          >
+            Створити PDF-звіт
+          </motion.button>
+        </>
       )}
+
+
     </div>
   );
 }
