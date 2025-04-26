@@ -27,9 +27,10 @@ export default function MapView() {
   const damageOptions = [25, 50, 75, 100];
 
   const getColorByDamage = (percent: number) => {
-    if (percent >= 75) return "red";
-    if (percent >= 50) return "orangered";
-    if (percent >= 25) return "orange";
+    if (percent >= 100) return "red";
+    if (percent >= 75) return "orangered";
+    if (percent >= 50) return "orange";
+    if (percent >= 25) return "yellow";
     return "yellow";
   };
 
@@ -63,8 +64,10 @@ export default function MapView() {
     setCurrentZone(null);
   };
 
+  
   const handleSubmit = () => {
     const dataToSend = {
+      zones, 
     };
 
     console.log("Дані для надсилання:", JSON.stringify(dataToSend, null, 2));
@@ -74,7 +77,6 @@ export default function MapView() {
 
     setZones([]);
   };
-
 
   return (
     <div className="relative min-h-screen">
