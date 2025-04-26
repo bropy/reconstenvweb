@@ -2,7 +2,7 @@ import TimeLineSelector from "./TimeLineSelector";
 
 type Props = {};
 
-function SidePanel({}: Props) {
+function LeftPanel({}: Props) {
   return (
     <div className=" z-50 h-full bg-amber-50 w-64">
       SidePanel
@@ -11,4 +11,4 @@ function SidePanel({}: Props) {
   );
 }
 
-export default SidePanel;
+export default LeftPanel;
