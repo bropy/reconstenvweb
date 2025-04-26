@@ -1,5 +1,6 @@
 // components/Footer.tsx
 'use client';
+import Logo from "./Logo";
 
 import { FaLinkedin } from "react-icons/fa";
 import { FaFacebookSquare } from "react-icons/fa";
@@ -16,8 +17,8 @@ export default function Footer() {
           <FooterLink text="Контакти" />
           <FooterLink text="Політика конфіденційності" />
         </div>
-        {/* Логотип або текст */}
-        <Image src="/logo.png" alt="Логотип" width={400} height={100} />
+
+        <Logo />
 
         <div className="flex space-x-6 ">
           <FaLinkedin className="w-10 h-10 m text-white hover:text-indigo-300" />
