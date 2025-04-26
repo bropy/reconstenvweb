@@ -5,15 +5,10 @@ import { MapContainer, TileLayer, FeatureGroup } from "react-leaflet";
 import { EditControl } from "react-leaflet-draw";
 import L from "leaflet";
 import { motion } from "framer-motion";
+import { ZoneData, AnalysisResponse, DamageAnalysis } from "../types/type";
 
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
-
-interface ZoneData {
-  id: string;
-  points: { lat: number; lng: number }[];
-  damage: number;
-}
 
 export default function MapView() {
   const featureGroupRef = useRef<L.FeatureGroup<any>>(null);
@@ -24,6 +19,9 @@ export default function MapView() {
     points: { lat: number; lng: number }[];
     damage: number | null;
   } | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [analysisData, setAnalysisData] = useState<AnalysisResponse | null>(null);
+  const [damageAnalysis, setDamageAnalysis] = useState<DamageAnalysis | null>(null);
 
   const damageOptions = [25, 50, 75, 100];
 
@@ -90,18 +88,102 @@ export default function MapView() {
     );
   };
   
-  
-  
-  const handleSubmit = () => {
-    const dataToSend = {
-      zones, 
+  // Аналіз даних пошкоджень для відображення загальної статистики
+  const calculateDamageAnalysis = (data: AnalysisResponse): DamageAnalysis => {
+    let totalDamage = 0;
+    let damagedFacilities = 0;
+    const facilitiesByDamage: {[key: string]: number} = {
+      "Критичні (100%)": 0,
+      "Сильні (75%)": 0,
+      "Середні (50%)": 0,
+      "Легкі (25%)": 0,
+      "Неушкоджені (0%)": 0
     };
+    
+    // Підрахунок об'єктів за рівнем пошкодження
+    Object.values(data.results).forEach(category => {
+      category.items.forEach(item => {
+        const damage = item.damage || 0;
+        
+        if (damage > 0) {
+          damagedFacilities++;
+          totalDamage += damage;
+        }
+        
+        if (damage === 100) facilitiesByDamage["Критичні (100%)"]++;
+        else if (damage === 75) facilitiesByDamage["Сильні (75%)"]++;
+        else if (damage === 50) facilitiesByDamage["Середні (50%)"]++;
+        else if (damage === 25) facilitiesByDamage["Легкі (25%)"]++;
+        else facilitiesByDamage["Неушкоджені (0%)"]++;
+      });
+    });
+    
+    // Розрахунок приблизної вартості відновлення (фейкові дані для прикладу)
+    const baseCost = damagedFacilities * 5; // в мільйонах грн
+    const damageMultiplier = totalDamage / (damagedFacilities || 1) / 100;
+    const approximateReconstructionCost = baseCost * (1 + damageMultiplier);
+    
+    // Розрахунок приблизного часу відновлення (фейкові дані для прикладу)
+    const approximateReconstructionTime = Math.round(damagedFacilities * 0.5 * damageMultiplier); // в місяцях
+    
+    return {
+      totalDamage,
+      damagedFacilities,
+      approximateReconstructionCost: Math.round(approximateReconstructionCost),
+      approximateReconstructionTime: Math.max(1, approximateReconstructionTime),
+      facilitiesByDamage
+    };
+  };
 
-    console.log("Дані для надсилання:", JSON.stringify(dataToSend, null, 2));
+  const handleSubmit = async () => {
+    if (zones.length === 0) return;
+    
+    setIsLoading(true);
+    
+    try {
+      // Приклад: місто Харків
+      const dataToSend = {
+        city: "Харків",
+        zones: zones, 
+      };
 
-    // Тут можна виконати запит на сервер
-    // fetch("/your-endpoint", { method: "POST", body: JSON.stringify(dataToSend) })
+      console.log("Дані для надсилання:", JSON.stringify(dataToSend, null, 2));
 
+      // Використовуємо fetch для відправки даних на API
+      const response = await fetch("http://127.0.0.1:8000/reconst/damage-zones-analysis/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataToSend),
+      });
+      
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setAnalysisData(data);
+      
+      // Розрахунок аналізу пошкоджень
+      const analysis = calculateDamageAnalysis(data);
+      setDamageAnalysis(analysis);
+      
+      // Відправка даних в локальне сховище для доступу іншими компонентами
+      localStorage.setItem('damageAnalysisData', JSON.stringify(data));
+      localStorage.setItem('damageAnalysisSummary', JSON.stringify(analysis));
+      
+      // Подія для сповіщення інших компонентів
+      window.dispatchEvent(new Event('damageAnalysisUpdated'));
+      
+      console.log("Аналіз завершено:", data);
+    } catch (error) {
+      console.error("Помилка при відправці даних:", error);
+      alert("Помилка при відправці даних. Деталі в консолі.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -166,10 +248,24 @@ export default function MapView() {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={handleSubmit}
-          className="absolute bottom-10 left-1/2 transform -translate-x-1/2 bg-green-500 text-white font-bold px-6 py-3 rounded-full shadow-lg transition-all"
+          disabled={isLoading}
+          className="absolute bottom-10 left-1/2 transform -translate-x-1/2 bg-green-500 hover:bg-green-600 text-white font-bold px-6 py-3 rounded-full shadow-lg transition-all disabled:bg-gray-400"
         >
-          Надіслати дані
+          {isLoading ? "Обробка..." : "Провести аналіз пошкоджень"}
         </motion.button>
+      )}
+
+      {damageAnalysis && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="absolute top-6 right-6 bg-white/90 backdrop-blur-md p-4 rounded-xl shadow-lg z-[999] max-w-xs"
+        >
+          <h3 className="font-bold text-lg mb-2">Результати аналізу</h3>
+          <p className="text-sm mb-1">Пошкоджені об'єкти: <span className="font-semibold">{damageAnalysis.damagedFacilities}</span></p>
+          <p className="text-sm mb-1">Приблизна вартість: <span className="font-semibold">{damageAnalysis.approximateReconstructionCost} млн грн</span></p>
+          <p className="text-sm">Час відновлення: <span className="font-semibold">~{damageAnalysis.approximateReconstructionTime} міс.</span></p>
+        </motion.div>
       )}
     </div>
   );

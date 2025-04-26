@@ -1,27 +1,57 @@
-interface DamageZone {
-    damage: number;
-    points: Array<{lat: number, lng: number}>;
+// Типи для зон пошкодження
+export interface LatLng {
+    lat: number;
+    lng: number;
   }
   
-  interface InfrastructureItem {
+  export interface ZoneData {
+    id: string;
+    points: LatLng[];
+    damage: number;
+  }
+  
+  // Типи для об'єктів інфраструктури
+  export interface InfrastructureItem {
     name: string;
     lat: number;
     lon: number;
     type: string;
     id: number;
-    damage: number;
+    damage?: number;
   }
   
-  interface CategoryData {
+  export interface CategoryData {
     count: number;
     items: InfrastructureItem[];
   }
   
-  interface CityInfrastructureData {
+  export interface InfrastructureResults {
+    [key: string]: CategoryData;
+  }
+  
+  export interface AnalysisResponse {
     city: string;
     boundary: {
       id: number;
       tags: Record<string, string>;
     };
-    results: Record<string, CategoryData>;
+    results: InfrastructureResults;
+  }
+  
+  // Типи для розрахунку вартості відновлення
+  export interface ReconstructionCosts {
+    [key: string]: {
+      build: number;
+      reconstruct: number;
+    };
+  }
+  
+  export interface DamageAnalysis {
+    totalDamage: number;
+    damagedFacilities: number;
+    approximateReconstructionCost: number;
+    approximateReconstructionTime: number;
+    facilitiesByDamage: {
+      [key: string]: number;
+    };
   }
