@@ -7,8 +7,11 @@ type Project = {
   name: string;
   createdAt: Date;
 };
+type Props = {
+  setOpen: (open: boolean) => void;
+};
 
-function DashBoard() {
+function DashBoard({ setOpen }: Props) {
   const [projects, setProjects] = useState<Project[]>([]);
 
   useEffect(() => {
@@ -34,27 +37,33 @@ function DashBoard() {
   }, []);
 
   return (
-    <Link className="m-2 rounded-md" href="/map">
+    <div className="m-2 rounded-md">
       <div className="flex justify-between items-center bg-amber-100 rounded-md p-2">
         <h1 className="font-bold text-2xl">DashBoard</h1>
-        <button className="bg-amber-200 rounded-xl p-2">Create new</button>
+        <button
+          className="bg-amber-200 rounded-xl p-2"
+          onClick={() => setOpen(true)}
+        >
+          Сворити новий
+        </button>
       </div>
       <div className="flex flex-col gap-2 mt-2">
         {projects.length > 0 ? (
           projects.map((project) => (
-            <div
+            <Link
+              href="/map"
               key={project.id}
               className="bg-amber-200 rounded-md p-2 flex justify-between items-center"
             >
               <h2>{project.name}</h2>
               <h2>{project.createdAt.toLocaleDateString()}</h2>
-            </div>
+            </Link>
           ))
         ) : (
           <div className="text-center mb-2">No projects found</div>
         )}
       </div>
-    </Link>
+    </div>
   );
 }
 
