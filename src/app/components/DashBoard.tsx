@@ -20,21 +20,22 @@ function DashBoard({ setOpen }: Props) {
       {
         id: 1,
         name: "Слов'янськ",
-        createdAt: new Date(),
+        createdAt: new Date(2025, 3, 26), // April 26, 2025
       },
       {
         id: 2,
         name: "Херсон",
-        createdAt: new Date(),
+        createdAt: new Date(2025, 3, 15), // April 15, 2025
       },
       {
         id: 3,
         name: "Ізюм",
-        createdAt: new Date(),
+        createdAt: new Date(), // today's date
       },
     ];
     setProjects(Projects);
   }, []);
+
 
   return (
     <div className="m-4 p-4 rounded-lg from-blue-500 to-blue-900 text-white">
