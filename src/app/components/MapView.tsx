@@ -8,7 +8,6 @@ import L from "leaflet";
 import "leaflet-draw";
 import { motion } from "framer-motion";
 import { ZoneData, AnalysisResponse, DamageAnalysis } from "../types/type";
-import html2canvas from "html2canvas";
 
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
@@ -138,123 +137,71 @@ export default function MapView() {
     };
   };
   
-  const handleGeneratePDF = () => {
-    if (!analysisData || !damageAnalysis) return;
   
-    const doc = new jsPDF();
-    
-    doc.setFontSize(18);
-    doc.text("Звіт про пошкодження інфраструктури", 10, 20);
+
+// Inside your component:
+const [isClient, setIsClient] = useState(false);
+
+// Set isClient to true when component mounts (client-side only)
+useEffect(() => {
+  setIsClient(true);
+}, []);
+
+const handleSubmit = async () => {
+  if (zones.length === 0) return;
   
-    doc.setFontSize(12);
-    doc.text(`Місто: Харків`, 10, 35);
+  setIsLoading(true);
   
-    doc.text(`Пошкоджені об'єкти: ${damageAnalysis.damagedFacilities}`, 10, 45);
-    doc.text(`Приблизна вартість відновлення: ${damageAnalysis.approximateReconstructionCost} млн грн`, 10, 55);
-    doc.text(`Приблизний час відновлення: ~${damageAnalysis.approximateReconstructionTime} міс.`, 10, 65);
-  
-    doc.text("Розподіл об'єктів за ступенем пошкодження:", 10, 80);
-  
-    let y = 90;
-    Object.entries(damageAnalysis.facilitiesByDamage).forEach(([key, value]) => {
-      doc.text(`- ${key}: ${value}`, 15, y);
-      y += 10;
+  try {
+    // Приклад: місто Харків
+    const dataToSend = {
+      city: "Харків",
+      zones: zones, 
+    };
+
+    console.log("Дані для надсилання:", JSON.stringify(dataToSend, null, 2));
+
+    // Використовуємо fetch для відправки даних на API
+    const response = await fetch("https://mltplrccnt.pythonanywhere.com/reconst/damage-zones-analysis/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(dataToSend),
     });
-  
-    doc.save(`damage_report_${Date.now()}.pdf`);
-  };
-  
-  const handleSubmit = async () => {
-    if (zones.length === 0) return;
     
-    setIsLoading(true);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    setAnalysisData(data);
     
-    try {
-      // Приклад: місто Харків
-      const dataToSend = {
-        city: "Харків",
-        zones: zones, 
-      };
-
-      console.log("Дані для надсилання:", JSON.stringify(dataToSend, null, 2));
-
-      // Використовуємо fetch для відправки даних на API
-      const response = await fetch("https://mltplrccnt.pythonanywhere.com/reconst/damage-zones-analysis/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(dataToSend),
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      setAnalysisData(data);
-      
-      // Розрахунок аналізу пошкоджень
-      const analysis = calculateDamageAnalysis(data);
-      setDamageAnalysis(analysis);
-      
-      // Відправка даних в локальне сховище для доступу іншими компонентами
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('damageAnalysisData', JSON.stringify(data));
-        localStorage.setItem('damageAnalysisSummary', JSON.stringify(analysis));
-        window.dispatchEvent(new Event('damageAnalysisUpdated'));
-      }
-      
-      console.log("Аналіз завершено:", data);
-    } catch (error) {
-      console.error("Помилка при відправці даних:", error);
-      if (typeof window !== 'undefined') {
-        alert("Помилка при відправці даних. Деталі в консолі.");
-      }
-    } finally {
-      setIsLoading(false);
+    // Розрахунок аналізу пошкоджень
+    const analysis = calculateDamageAnalysis(data);
+    setDamageAnalysis(analysis);
+    
+    // Відправка даних в локальне сховище для доступу іншими компонентами
+    if (isClient) {
+      localStorage.setItem('damageAnalysisData', JSON.stringify(data));
+      localStorage.setItem('damageAnalysisSummary', JSON.stringify(analysis));
+      window.dispatchEvent(new Event('damageAnalysisUpdated'));
     }
-  };
+    
+    console.log("Аналіз завершено:", data);
+  } catch (error) {
+    console.error("Помилка при відправці даних:", error);
+    if (isClient) {
+      alert("Помилка при відправці даних. Деталі в консолі.");
+    }
+  } finally {
+    setIsLoading(false);
+  }
+};
   
-  const setupMapScreenshotHandler = () => {
-    if (typeof window !== 'undefined') {
-      // Listen for screenshot requests
-      window.addEventListener("requestMapScreenshot", async () => {
-        try {
-          // Get the map container element
-          const mapElement = document.getElementById("map-container"); // Replace with your actual map container ID
-          
-          if (!mapElement) {
-            console.error("Map element not found");
-            return;
-          }
-          
-          // Use html2canvas to capture the map
-          const canvas = await html2canvas(mapElement, {
-            useCORS: true,
-            allowTaint: true,
-            scale: 2,
-          });
-          
-          // Convert canvas to image URL
-          const imageUrl = canvas.toDataURL("image/png");
-          
-          // Dispatch event with the image URL
-          window.dispatchEvent(
-            new CustomEvent("mapScreenshotCaptured", {
-              detail: { imageUrl },
-            })
-          );
-        } catch (error) {
-          console.error("Error capturing map screenshot:", error);
-        }
-      });
-    }
-  };
   
   // Call this in useEffect or component initialization
   useEffect(() => {
-    setupMapScreenshotHandler();
     // Clean up event listener on component unmount
     return () => {
       if (typeof window !== 'undefined') {
@@ -358,7 +305,6 @@ export default function MapView() {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={handleGeneratePDF}
             className="absolute top-[200px] right-6 bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg shadow-lg z-[999]"
           >
             Створити PDF-звіт

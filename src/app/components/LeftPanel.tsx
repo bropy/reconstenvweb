@@ -1,8 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { FaTable, FaListUl, FaMap, FaFilePdf, FaDownload } from "react-icons/fa";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 import { motion } from "framer-motion";
 import { AnalysisResponse, InfrastructureItem } from "../types/type";
 import {
@@ -139,39 +137,7 @@ function LeftPanel() {
   }, []);
   
   // Add this function to your LeftPanel component for exporting as PDF
-  const exportTableAsPDF = async () => {
-    if (!tableRef.current) return;
-    
-    try {
-      const canvas = await html2canvas(tableRef.current, {
-        scale: 2,
-        logging: false,
-        backgroundColor: "#111827", // Dark background
-      });
-      
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({
-        orientation: 'landscape',
-        unit: 'mm',
-        format: 'a4',
-        compress: true,
-        putOnlyUsedFonts: true,
-        userUnit: 1.0,
-        hotfixes: ["px_scaling"]
-      });
-      
-      const imgWidth = 290;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      
-      pdf.setFillColor(17, 24, 39); // Dark background color
-      pdf.rect(0, 0, pdf.internal.pageSize.getWidth(), pdf.internal.pageSize.getHeight(), 'F');
-      
-      pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
-      pdf.save('reconstruction-plan.pdf');
-    } catch (error) {
-      console.error("Error exporting PDF:", error);
-    }
-  };
+
   useEffect(() => {
     // Function to generate a reconstruction plan based on analysis data
     const generateReconstructionPlan = () => {
@@ -435,7 +401,9 @@ function LeftPanel() {
     <div className="flex justify-between items-center mb-2">
       <h2 className="text-md font-semibold text-gray-200">Таблиця реконструкції</h2>
       <button 
-        onClick={exportTableAsPDF}
+        onClick={() => {
+          alert("Цікаво? Тоді додамо цю функцію в майбутньому.");
+        }}
         className="flex items-center gap-1 bg-blue-600 text-white text-xs px-2 py-1 rounded hover:bg-blue-700"
         title="Експорт у PDF"
       >
@@ -531,10 +499,7 @@ function LeftPanel() {
         <button 
           className="mt-3 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
           onClick={() => {
-            // Dispatch event to request a map screenshot
-            if (typeof window !== 'undefined') {
-
-            window.dispatchEvent(new CustomEvent("requestMapScreenshot"));}
+            alert("Ця функція ще не реалізована. Слідкуйте за оновленнями!");
           }}
         >
           Створити знімок карти

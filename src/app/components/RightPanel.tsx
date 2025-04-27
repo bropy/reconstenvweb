@@ -77,16 +77,22 @@ const getDamageColorClass = (damage: number = 0) => {
   return "bg-green-500 border-green-700";
 };
 
+
 function RightPanel() {
-  const [visibleCounts, setVisibleCounts] = useState<{ [key: string]: number }>(
-    {}
-  );
-  const [analysisData, setAnalysisData] = useState<AnalysisResponse | null>(
-    null
-  );
+  const [visibleCounts, setVisibleCounts] = useState<{ [key: string]: number }>({});
+  const [analysisData, setAnalysisData] = useState<AnalysisResponse | null>(null);
+  const [isClient, setIsClient] = useState(false);
   const initialVisible = 3; // Скільки елементів видно спочатку
 
+  // Check if we're on the client-side
   useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    // Only run this effect on the client side
+    if (!isClient) return;
+
     // Функція для оновлення даних з локального сховища
     const updateData = () => {
       const storedData = localStorage.getItem("damageAnalysisData");
@@ -99,17 +105,13 @@ function RightPanel() {
     updateData();
 
     // Підписка на подію оновлення даних
-    if (typeof window !== 'undefined') {
-
-    window.addEventListener("damageAnalysisUpdated", updateData);}
+    window.addEventListener("damageAnalysisUpdated", updateData);
 
     // Відписка при розмонтуванні
     return () => {
-      if (typeof window !== 'undefined') {
-
-      window.removeEventListener("damageAnalysisUpdated", updateData);}
+      window.removeEventListener("damageAnalysisUpdated", updateData);
     };
-  }, []);
+  }, [isClient]);
 
   const handleShowMore = (key: string) => {
     setVisibleCounts((prev) => ({
@@ -163,7 +165,6 @@ function RightPanel() {
           (place: InfrastructureItem) => place.name !== "Unnamed"
         );
         const visibleCount = visibleCounts[key] || initialVisible;
-
 
         return (
           <div key={key} className="mb-6">
