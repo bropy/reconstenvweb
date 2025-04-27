@@ -16,25 +16,27 @@ function DashBoard({ setOpen }: Props) {
   const [projects, setProjects] = useState<Project[]>([]);
 
   useEffect(() => {
-    const randomProjects: Project[] = [
+    const Projects: Project[] = [
       {
         id: 1,
-        name: "Project Alpha",
-        createdAt: new Date(),
+        name: "Слов'янськ",
+        createdAt: new Date(2025, 3, 26),
       },
       {
         id: 2,
-        name: "Project Beta",
-        createdAt: new Date(),
+        name: "Херсон",
+        createdAt: new Date(2025, 3, 15),
       },
       {
         id: 3,
-        name: "Project Gamma",
-        createdAt: new Date(),
+        name: "Ізюм",
+        createdAt: new Date(2025, 1, 31),
       },
     ];
-    setProjects(randomProjects);
+    setProjects(Projects);
   }, []);
+
+
 
   return (
     <div className="m-4 p-4 rounded-lg from-blue-500 to-blue-900 text-white">
