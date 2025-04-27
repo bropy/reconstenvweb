@@ -99,11 +99,15 @@ function RightPanel() {
     updateData();
 
     // Підписка на подію оновлення даних
-    window.addEventListener("damageAnalysisUpdated", updateData);
+    if (typeof window !== 'undefined') {
+
+    window.addEventListener("damageAnalysisUpdated", updateData);}
 
     // Відписка при розмонтуванні
     return () => {
-      window.removeEventListener("damageAnalysisUpdated", updateData);
+      if (typeof window !== 'undefined') {
+
+      window.removeEventListener("damageAnalysisUpdated", updateData);}
     };
   }, []);
 

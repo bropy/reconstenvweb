@@ -126,12 +126,15 @@ function LeftPanel() {
         setSelectedMapImageUrl(customEvent.detail.imageUrl);
       }
     };
-  
+    if (typeof window !== 'undefined') {
+      window.addEventListener("mapScreenshotCaptured", handleMapScreenshot);
+    }
     // Listen for map screenshot events
-    window.addEventListener("mapScreenshotCaptured", handleMapScreenshot);
   
     return () => {
-      window.removeEventListener("mapScreenshotCaptured", handleMapScreenshot);
+      if (typeof window !== 'undefined') {
+
+      window.removeEventListener("mapScreenshotCaptured", handleMapScreenshot);}
     };
   }, []);
   
@@ -232,10 +235,14 @@ function LeftPanel() {
     generateReconstructionPlan();
     
     // Listen for updates to damage analysis data
+    if (typeof window !== 'undefined') {
+
     window.addEventListener("damageAnalysisUpdated", generateReconstructionPlan);
-    
+    }
     return () => {
-      window.removeEventListener("damageAnalysisUpdated", generateReconstructionPlan);
+      if (typeof window !== 'undefined') {
+
+      window.removeEventListener("damageAnalysisUpdated", generateReconstructionPlan);}
     };
   }, []);
 
@@ -525,7 +532,9 @@ function LeftPanel() {
           className="mt-3 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
           onClick={() => {
             // Dispatch event to request a map screenshot
-            window.dispatchEvent(new CustomEvent("requestMapScreenshot"));
+            if (typeof window !== 'undefined') {
+
+            window.dispatchEvent(new CustomEvent("requestMapScreenshot"));}
           }}
         >
           Створити знімок карти

@@ -10,13 +10,15 @@ export default function Navbar() {
   const [navOpen, setNavOpen] = useState(false);
 
   useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth > 800) {
-        setNavOpen(false);
-      }
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    if (typeof window !== 'undefined') {
+      const handleResize = () => {
+        if (window.innerWidth > 800) {
+          setNavOpen(false);
+        }
+      };
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }
   }, []);
 
   return (
