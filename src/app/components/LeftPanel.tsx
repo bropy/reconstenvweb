@@ -6,7 +6,6 @@ import jsPDF from "jspdf";
 import { motion } from "framer-motion";
 import { AnalysisResponse, InfrastructureItem } from "../types/type";
 import {
-  FaSchool,
   FaBook,
   FaHospital,
   FaClinicMedical,
@@ -17,10 +16,7 @@ import {
   FaFireExtinguisher,
   FaTree,
   FaShoppingCart,
-  FaHardHat,
   FaCalendarAlt,
-  FaArrowUp,
-  FaArrowDown,
 } from "react-icons/fa";
 import { FaPills } from "react-icons/fa6";
 interface ReconstructionCosts {
@@ -116,7 +112,6 @@ function LeftPanel() {
   const [sortField, setSortField] = useState<string>("priority");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [reconstructionPlan, setReconstructionPlan] = useState<ReconstructionItem[]>([]);
-  const [loading, setLoading] = useState(false);
   const [filterPriority, setFilterPriority] = useState<number | null>(null);
   const [viewMode, setViewMode] = useState<"list" | "table" | "map">("list");
   const [selectedMapImageUrl, setSelectedMapImageUrl] = useState<string | null>(null);

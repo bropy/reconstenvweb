@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AnalysisResponse, InfrastructureItem } from "../types/type";
 import {
-  FaSchool,
   FaBook,
   FaHospital,
   FaClinicMedical,
@@ -85,8 +84,6 @@ function RightPanel() {
   const [analysisData, setAnalysisData] = useState<AnalysisResponse | null>(
     null
   );
-  const [loading, setLoading] = useState(false);
-
   const initialVisible = 3; // Скільки елементів видно спочатку
 
   useEffect(() => {
@@ -159,9 +156,10 @@ function RightPanel() {
       {Object.entries(analysisData.results).map(([key, value]) => {
         const damagedCount = getDamagedCount(value.items);
         const filteredItems = value.items.filter(
-          (place: any) => place.name !== "Unnamed"
+          (place: InfrastructureItem) => place.name !== "Unnamed"
         );
         const visibleCount = visibleCounts[key] || initialVisible;
+
 
         return (
           <div key={key} className="mb-6">

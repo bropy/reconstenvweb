@@ -34,7 +34,7 @@ function NewBoardMenu({ open, setOpen }: Props) {
             <h1 className="text-3xl font-bold text-center">Новий проект</h1>
 
             <label className="text-indigo-100 font-semibold text-sm">
-              Напишіть ім'я міста
+              Напишіть ім&apos;я міста
             </label>
 
             <input

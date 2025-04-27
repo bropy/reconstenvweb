@@ -5,6 +5,7 @@ import { MapContainer, TileLayer, FeatureGroup } from "react-leaflet";
 import { EditControl } from "react-leaflet-draw";
 import jsPDF from "jspdf";
 import L from "leaflet";
+import "@types/leaflet-draw";
 import { motion } from "framer-motion";
 import { ZoneData, AnalysisResponse, DamageAnalysis } from "../types/type";
 import html2canvas from "html2canvas";
@@ -13,7 +14,7 @@ import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
 
 export default function MapView() {
-  const featureGroupRef = useRef<L.FeatureGroup<any>>(null);
+  const featureGroupRef = useRef<L.FeatureGroup>(null);
 
   const [zones, setZones] = useState<ZoneData[]>([]);
   const [currentZone, setCurrentZone] = useState<{
@@ -35,11 +36,11 @@ export default function MapView() {
     return "yellow";
   };
 
-  const onCreated = (e: any) => {
+  const onCreated = (e: L.DrawEvents.Created) => {
     const { layerType, layer } = e;
     if (layerType === "rectangle" || layerType === "polygon") {
-      const latlngs = layer.getLatLngs()[0];
-      const points = latlngs.map((point: { lat: number; lng: number }) => ({
+      const latlngs = (layer as L.Polygon).getLatLngs()[0] as L.LatLng[];
+      const points = latlngs.map((point: L.LatLng) => ({
         lat: point.lat,
         lng: point.lng,
       }));
@@ -50,7 +51,7 @@ export default function MapView() {
 
   const handleDamageSelect = (percent: number) => {
     if (!currentZone) return;
-    (currentZone.layer as any).setStyle({
+    (currentZone.layer as L.Path).setStyle({
       color: getColorByDamage(percent),
       fillColor: getColorByDamage(percent),
       fillOpacity: 0.5,
@@ -66,7 +67,7 @@ export default function MapView() {
     setCurrentZone(null);
   };
 
-  const onDeleted = (e: any) => {
+  const onDeleted = (e: L.DrawEvents.Deleted) => {
     const layers = e.layers;
     const layersArray: L.Layer[] = [];
   
@@ -77,8 +78,8 @@ export default function MapView() {
     setZones((prevZones) =>
       prevZones.filter((zone) => {
         return !layersArray.some((layer) => {
-          const latlngs = (layer as any).getLatLngs()[0];
-          const layerPoints = latlngs.map((point: { lat: number; lng: number }) => ({
+          const latlngs = ((layer as L.Polygon).getLatLngs()[0] as L.LatLng[]);
+          const layerPoints = latlngs.map((point: L.LatLng) => ({
             lat: point.lat,
             lng: point.lng,
           }));
@@ -334,7 +335,7 @@ export default function MapView() {
           >
             <h3 className="font-bold text-lg mb-2">Результати аналізу</h3>
             <p className="text-sm mb-1">
-              Пошкоджені об'єкти: <span className="font-semibold">{damageAnalysis.damagedFacilities}</span>
+              Пошкоджені об&apos;єкти: <span className="font-semibold">{damageAnalysis.damagedFacilities}</span>
             </p>
             <p className="text-sm mb-1">
               Приблизна вартість: <span className="font-semibold">{damageAnalysis.approximateReconstructionCost} млн грн</span>
