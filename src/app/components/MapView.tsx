@@ -137,6 +137,7 @@ export default function MapView() {
       facilitiesByDamage
     };
   };
+  
   const handleGeneratePDF = () => {
     if (!analysisData || !damageAnalysis) return;
   
@@ -162,6 +163,7 @@ export default function MapView() {
   
     doc.save(`damage_report_${Date.now()}.pdf`);
   };
+  
   const handleSubmit = async () => {
     if (zones.length === 0) return;
     
@@ -185,7 +187,6 @@ export default function MapView() {
         body: JSON.stringify(dataToSend),
       });
       
-
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -198,52 +199,57 @@ export default function MapView() {
       setDamageAnalysis(analysis);
       
       // Відправка даних в локальне сховище для доступу іншими компонентами
-      localStorage.setItem('damageAnalysisData', JSON.stringify(data));
-      localStorage.setItem('damageAnalysisSummary', JSON.stringify(analysis));
-      
-      // Подія для сповіщення інших компонентів
-
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('damageAnalysisData', JSON.stringify(data));
+        localStorage.setItem('damageAnalysisSummary', JSON.stringify(analysis));
+        window.dispatchEvent(new Event('damageAnalysisUpdated'));
+      }
       
       console.log("Аналіз завершено:", data);
     } catch (error) {
       console.error("Помилка при відправці даних:", error);
-      alert("Помилка при відправці даних. Деталі в консолі.");
+      if (typeof window !== 'undefined') {
+        alert("Помилка при відправці даних. Деталі в консолі.");
+      }
     } finally {
       setIsLoading(false);
     }
   };
+  
   const setupMapScreenshotHandler = () => {
-    // Listen for screenshot requests
-    window.addEventListener("requestMapScreenshot", async () => {
-      try {
-        // Get the map container element
-        const mapElement = document.getElementById("map-container"); // Replace with your actual map container ID
-        
-        if (!mapElement) {
-          console.error("Map element not found");
-          return;
+    if (typeof window !== 'undefined') {
+      // Listen for screenshot requests
+      window.addEventListener("requestMapScreenshot", async () => {
+        try {
+          // Get the map container element
+          const mapElement = document.getElementById("map-container"); // Replace with your actual map container ID
+          
+          if (!mapElement) {
+            console.error("Map element not found");
+            return;
+          }
+          
+          // Use html2canvas to capture the map
+          const canvas = await html2canvas(mapElement, {
+            useCORS: true,
+            allowTaint: true,
+            scale: 2,
+          });
+          
+          // Convert canvas to image URL
+          const imageUrl = canvas.toDataURL("image/png");
+          
+          // Dispatch event with the image URL
+          window.dispatchEvent(
+            new CustomEvent("mapScreenshotCaptured", {
+              detail: { imageUrl },
+            })
+          );
+        } catch (error) {
+          console.error("Error capturing map screenshot:", error);
         }
-        
-        // Use html2canvas to capture the map
-        const canvas = await html2canvas(mapElement, {
-          useCORS: true,
-          allowTaint: true,
-          scale: 2,
-        });
-        
-        // Convert canvas to image URL
-        const imageUrl = canvas.toDataURL("image/png");
-        
-        // Dispatch event with the image URL
-        window.dispatchEvent(
-          new CustomEvent("mapScreenshotCaptured", {
-            detail: { imageUrl },
-          })
-        );
-      } catch (error) {
-        console.error("Error capturing map screenshot:", error);
-      }
-    });
+      });
+    }
   };
   
   // Call this in useEffect or component initialization
@@ -251,22 +257,25 @@ export default function MapView() {
     setupMapScreenshotHandler();
     // Clean up event listener on component unmount
     return () => {
-      window.removeEventListener("requestMapScreenshot", () => {});
+      if (typeof window !== 'undefined') {
+        window.removeEventListener("requestMapScreenshot", () => {});
+      }
     };
   }, []);
+  
   return (
-    <div className="relative min-h-screen">
+    <div className="relative min-h-screen" id="map-container">
       <MapContainer
         center={[49.99712258003538, 36.29473860661989]}
         zoom={13}
         style={{ height: "100vh", width: "100%", zIndex: 0  }}
       >
         <TileLayer
-  url="https://api.maptiler.com/maps/streets-v2-dark/{z}/{x}/{y}.png?key=9aiMJwCT9cravYWI2zLA"
-  attribution="&copy; OpenStreetMap contributors &copy; MapTiler"
-  tileSize={512}
-  zoomOffset={-1}
-/>
+          url="https://api.maptiler.com/maps/streets-v2-dark/{z}/{x}/{y}.png?key=9aiMJwCT9cravYWI2zLA"
+          attribution="&copy; OpenStreetMap contributors &copy; MapTiler"
+          tileSize={512}
+          zoomOffset={-1}
+        />
 
         <FeatureGroup ref={featureGroupRef}>
           <EditControl
@@ -356,8 +365,6 @@ export default function MapView() {
           </motion.button>
         </>
       )}
-
-
     </div>
   );
 }
