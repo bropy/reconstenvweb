@@ -1,12 +1,13 @@
 'use client';
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MapContainer, TileLayer, FeatureGroup } from "react-leaflet";
 import { EditControl } from "react-leaflet-draw";
 import jsPDF from "jspdf";
 import L from "leaflet";
 import { motion } from "framer-motion";
 import { ZoneData, AnalysisResponse, DamageAnalysis } from "../types/type";
+import html2canvas from "html2canvas";
 
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
@@ -210,7 +211,48 @@ export default function MapView() {
       setIsLoading(false);
     }
   };
-
+  const setupMapScreenshotHandler = () => {
+    // Listen for screenshot requests
+    window.addEventListener("requestMapScreenshot", async () => {
+      try {
+        // Get the map container element
+        const mapElement = document.getElementById("map-container"); // Replace with your actual map container ID
+        
+        if (!mapElement) {
+          console.error("Map element not found");
+          return;
+        }
+        
+        // Use html2canvas to capture the map
+        const canvas = await html2canvas(mapElement, {
+          useCORS: true,
+          allowTaint: true,
+          scale: 2,
+        });
+        
+        // Convert canvas to image URL
+        const imageUrl = canvas.toDataURL("image/png");
+        
+        // Dispatch event with the image URL
+        window.dispatchEvent(
+          new CustomEvent("mapScreenshotCaptured", {
+            detail: { imageUrl },
+          })
+        );
+      } catch (error) {
+        console.error("Error capturing map screenshot:", error);
+      }
+    });
+  };
+  
+  // Call this in useEffect or component initialization
+  useEffect(() => {
+    setupMapScreenshotHandler();
+    // Clean up event listener on component unmount
+    return () => {
+      window.removeEventListener("requestMapScreenshot", () => {});
+    };
+  }, []);
   return (
     <div className="relative min-h-screen">
       <MapContainer

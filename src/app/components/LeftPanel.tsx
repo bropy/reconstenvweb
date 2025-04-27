@@ -1,6 +1,8 @@
 "use client";
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { FaTable, FaListUl, FaMap, FaFilePdf, FaDownload } from "react-icons/fa";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 import { motion } from "framer-motion";
 import { AnalysisResponse, InfrastructureItem } from "../types/type";
 import {
@@ -21,7 +23,12 @@ import {
   FaArrowDown,
 } from "react-icons/fa";
 import { FaPills } from "react-icons/fa6";
-
+interface ReconstructionCosts {
+  [key: string]: {
+    basePrice: number;  // Price per square meter in UAH
+    timePerDamagePoint: number; // Days per damage percentage point
+  }
+}
 // Reuse the icon function from RightPanel for consistency
 const getIcon = (category: string) => {
   const commonClasses = "w-5 h-5 min-w-5 min-h-5";
@@ -82,7 +89,20 @@ const priorityLevels: Record<number, { name: string, colorClass: string }> = {
   4: { name: "Низький", colorClass: "bg-blue-500" },
   5: { name: "Плановий", colorClass: "bg-green-500" },
 };
-
+const reconstructionCosts: ReconstructionCosts = {
+  hospitals: { basePrice: 25000, timePerDamagePoint: 0.5 },
+  schools: { basePrice: 18000, timePerDamagePoint: 0.4 },
+  pharmacies: { basePrice: 15000, timePerDamagePoint: 0.3 },
+  kindergartens: { basePrice: 16500, timePerDamagePoint: 0.35 },
+  clinics: { basePrice: 22000, timePerDamagePoint: 0.45 },
+  universities: { basePrice: 20000, timePerDamagePoint: 0.4 },
+  banks: { basePrice: 17000, timePerDamagePoint: 0.3 },
+  post_offices: { basePrice: 14000, timePerDamagePoint: 0.25 },
+  police_stations: { basePrice: 18000, timePerDamagePoint: 0.35 },
+  fire_stations: { basePrice: 19000, timePerDamagePoint: 0.4 },
+  parks: { basePrice: 8000, timePerDamagePoint: 0.2 },
+  supermarkets: { basePrice: 12000, timePerDamagePoint: 0.3 },
+};
 // Interface for reconstruction item with timeline
 interface ReconstructionItem extends InfrastructureItem {
   priority: number;
@@ -98,7 +118,62 @@ function LeftPanel() {
   const [reconstructionPlan, setReconstructionPlan] = useState<ReconstructionItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [filterPriority, setFilterPriority] = useState<number | null>(null);
-
+  const [viewMode, setViewMode] = useState<"list" | "table" | "map">("list");
+  const [selectedMapImageUrl, setSelectedMapImageUrl] = useState<string | null>(null);
+  const tableRef = useRef<HTMLDivElement>(null);
+  
+  // Add this to your useEffect to handle map image capture
+  useEffect(() => {
+    // Function to handle map screenshot events
+    const handleMapScreenshot = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      if (customEvent.detail && customEvent.detail.imageUrl) {
+        setSelectedMapImageUrl(customEvent.detail.imageUrl);
+      }
+    };
+  
+    // Listen for map screenshot events
+    window.addEventListener("mapScreenshotCaptured", handleMapScreenshot);
+  
+    return () => {
+      window.removeEventListener("mapScreenshotCaptured", handleMapScreenshot);
+    };
+  }, []);
+  
+  // Add this function to your LeftPanel component for exporting as PDF
+  const exportTableAsPDF = async () => {
+    if (!tableRef.current) return;
+    
+    try {
+      const canvas = await html2canvas(tableRef.current, {
+        scale: 2,
+        logging: false,
+        backgroundColor: "#111827", // Dark background
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4',
+        compress: true,
+        putOnlyUsedFonts: true,
+        userUnit: 1.0,
+        hotfixes: ["px_scaling"]
+      });
+      
+      const imgWidth = 290;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
+      pdf.setFillColor(17, 24, 39); // Dark background color
+      pdf.rect(0, 0, pdf.internal.pageSize.getWidth(), pdf.internal.pageSize.getHeight(), 'F');
+      
+      pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+      pdf.save('reconstruction-plan.pdf');
+    } catch (error) {
+      console.error("Error exporting PDF:", error);
+    }
+  };
   useEffect(() => {
     // Function to generate a reconstruction plan based on analysis data
     const generateReconstructionPlan = () => {
@@ -230,7 +305,23 @@ function LeftPanel() {
       ? reconstructionPlan.filter(item => item.priority === filterPriority)
       : reconstructionPlan
   );
-
+  const calculateRebuildPrice = (item: ReconstructionItem): number => {
+    const costs = reconstructionCosts[item.category] || { basePrice: 15000, timePerDamagePoint: 0.3 };
+    // Assuming average building size is 500 sq meters, scaled by damage percentage
+    const size = 500;
+    const damageRatio = (item.damage || 0) / 100;
+    return Math.round(size * costs.basePrice * damageRatio);
+  };
+  
+  const calculateRebuildTime = (item: ReconstructionItem): number => {
+    const costs = reconstructionCosts[item.category] || { basePrice: 15000, timePerDamagePoint: 0.3 };
+    return Math.round((item.damage || 0) * costs.timePerDamagePoint);
+  };
+  
+  // Function to format price in Ukrainian hryvnia
+  const formatPrice = (price: number): string => {
+    return new Intl.NumberFormat('uk-UA', { style: 'currency', currency: 'UAH' }).format(price);
+  };
   // If no data, show a message
   if (reconstructionPlan.length === 0) {
     return (
@@ -309,7 +400,151 @@ function LeftPanel() {
           </button>
         </div>
       </div>
+      <div className="flex justify-between items-center mb-4">
+  <h2 className="text-sm text-gray-300">Вигляд:</h2>
+  <div className="flex space-x-2">
+    <button 
+      onClick={() => setViewMode("list")}
+      className={`p-2 rounded ${viewMode === "list" ? "bg-blue-600" : "bg-gray-700"}`}
+      title="Список"
+    >
+      <FaListUl />
+    </button>
+    <button 
+      onClick={() => setViewMode("table")}
+      className={`p-2 rounded ${viewMode === "table" ? "bg-blue-600" : "bg-gray-700"}`}
+      title="Таблиця"
+    >
+      <FaTable />
+    </button>
+    <button 
+      onClick={() => setViewMode("map")}
+      className={`p-2 rounded ${viewMode === "map" ? "bg-blue-600" : "bg-gray-700"}`}
+      title="Карта зон"
+    >
+      <FaMap />
+    </button>
+  </div>
+</div>
 
+{/* Table view */}
+{viewMode === "table" && (
+  <div className="mb-4">
+    <div className="flex justify-between items-center mb-2">
+      <h2 className="text-md font-semibold text-gray-200">Таблиця реконструкції</h2>
+      <button 
+        onClick={exportTableAsPDF}
+        className="flex items-center gap-1 bg-blue-600 text-white text-xs px-2 py-1 rounded hover:bg-blue-700"
+        title="Експорт у PDF"
+      >
+        <FaFilePdf /> PDF
+      </button>
+    </div>
+    
+    <div 
+      ref={tableRef}
+      className="bg-gray-800 p-3 rounded-lg overflow-x-auto max-h-96 scrollbar-thin scrollbar-thumb-gray-600"
+    >
+      <table className="min-w-full text-xs text-gray-300">
+        <thead>
+          <tr className="bg-gray-700 text-left">
+            <th className="p-2 rounded-tl-lg">#</th>
+            <th className="p-2">Назва</th>
+            <th className="p-2">Тип</th>
+            <th className="p-2">Вартість</th>
+            <th className="p-2 rounded-tr-lg">Час (днів)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filteredAndSortedPlan.map((item, index) => (
+            <tr 
+              key={index} 
+              className={`${index % 2 === 0 ? 'bg-gray-800' : 'bg-gray-750'} hover:bg-gray-700`}
+            >
+              <td className="p-2 border-t border-gray-700">{index + 1}</td>
+              <td className="p-2 border-t border-gray-700 font-semibold">
+                <div className="flex items-center gap-2">
+                  {getIcon(item.category)}
+                  <span>{item.name}</span>
+                </div>
+              </td>
+              <td className="p-2 border-t border-gray-700">{categoryNameMap[item.category]}</td>
+              <td className="p-2 border-t border-gray-700">{formatPrice(calculateRebuildPrice(item))}</td>
+              <td className="p-2 border-t border-gray-700">{calculateRebuildTime(item)}</td>
+            </tr>
+          ))}
+        </tbody>
+        <tfoot>
+          <tr className="bg-gray-700 font-semibold">
+            <td className="p-2 rounded-bl-lg" colSpan={3}>Всього:</td>
+            <td className="p-2">{formatPrice(
+              filteredAndSortedPlan.reduce((sum, item) => sum + calculateRebuildPrice(item), 0)
+            )}</td>
+            <td className="p-2 rounded-br-lg">{
+              Math.round(filteredAndSortedPlan.reduce(
+                (sum, item) => sum + calculateRebuildTime(item), 0
+              ) / filteredAndSortedPlan.length * filteredAndSortedPlan.length)
+            } днів</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+)}
+
+{/* Map view */}
+{viewMode === "map" && (
+  <div className="mb-4">
+    <h2 className="text-md font-semibold text-gray-200 mb-2">Карта пошкоджених зон</h2>
+    
+    {selectedMapImageUrl ? (
+      <div className="bg-gray-800 p-3 rounded-lg">
+        <img 
+          src={selectedMapImageUrl} 
+          alt="Карта пошкоджених зон" 
+          className="w-full rounded border border-gray-700" 
+        />
+        <div className="text-xs text-gray-400 mt-2">
+          <p>Червоним кольором позначені зони з критичними пошкодженнями інфраструктури.</p>
+          <div className="flex justify-between mt-2">
+            <button 
+              className="flex items-center gap-1 bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
+              onClick={() => {
+                const link = document.createElement('a');
+                link.href = selectedMapImageUrl;
+                link.download = 'damage-map.png';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+              }}
+            >
+              <FaDownload size={12} /> Зберегти
+            </button>
+          </div>
+        </div>
+      </div>
+    ) : (
+      <div className="bg-gray-800 p-4 rounded-lg text-center text-gray-400">
+        <p>Для перегляду карти виділіть зони пошкодження та зробіть скріншот.</p>
+        <button 
+          className="mt-3 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+          onClick={() => {
+            // Dispatch event to request a map screenshot
+            window.dispatchEvent(new CustomEvent("requestMapScreenshot"));
+          }}
+        >
+          Створити знімок карти
+        </button>
+      </div>
+    )}
+  </div>
+)}
+
+{viewMode === "list" && (
+  <div className="flex flex-col space-y-4">
+    {/* Your existing list view code here */}
+  </div>
+)}
       {/* Reconstruction timeline */}
       <div className="flex flex-col space-y-4">
         {filteredAndSortedPlan.map((item, index) => {
