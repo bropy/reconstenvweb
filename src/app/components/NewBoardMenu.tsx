@@ -1,5 +1,7 @@
+// components/NewBoardMenu.tsx
+"use client";
 import { useRef, useState } from "react";
-import { useRouter } from "next/navigation"; // Якщо ти на Next.js 13+
+import { useRouter } from "next/navigation";
 
 type Props = {
   open: boolean;
@@ -12,11 +14,11 @@ function NewBoardMenu({ open, setOpen }: Props) {
   const [noName, setNoName] = useState(false);
 
   const createProject = () => {
-    const cityName = cityInputRef.current?.value.trim();
+    // const cityName = cityInputRef.current?.value.trim();
+    const cityName = "Харків"; // For demo
 
     if (cityName) {
       console.log("City:", cityName);
-      // Наприклад, можна передати місто через query параметр
       router.push(`/map?city=${encodeURIComponent(cityName)}`);
     } else {
       setNoName(true);
@@ -27,27 +29,29 @@ function NewBoardMenu({ open, setOpen }: Props) {
   return (
     <>
       {open && (
-        <div className="fixed top-0 left-0 w-full h-full bg-black/30 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg flex flex-col gap-4 w-80">
-            <h1 className="text-2xl font-bold text-center">Новий проект</h1>
-            <label className="text-gray-700 font-medium">
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-gradient-to-br from-blue-600 to-blue-900 text-white p-6 rounded-2xl shadow-2xl flex flex-col gap-5 w-full max-w-sm">
+            <h1 className="text-3xl font-bold text-center">Новий проект</h1>
+
+            <label className="text-indigo-100 font-semibold text-sm">
               Напишіть ім'я міста
             </label>
+
             <input
               type="text"
               ref={cityInputRef}
-              className={`${
-                noName ? "border-red-400 " : "border-gray-300"
-              } border  rounded-md p-2 focus:outline-none focus:ring-2 ${
+              className={`rounded-lg p-3 text-lg font-semibold focus:outline-none transition-all ${
                 noName
-                  ? "border-red-300 focus:ring-red-500 text-red-700"
-                  : "border-gray-300 focus:ring-blue-500 text-gray-400"
-              } `}
-              placeholder="Назва міста"
+                  ? "bg-red-100 text-red-700 placeholder-red-400 focus:ring-2 focus:ring-red-400"
+                  : "bg-white/20 text-white placeholder-indigo-300 focus:ring-2 focus:ring-indigo-400"
+              }`}
+              placeholder="Харків (демо)"
+              readOnly
             />
-            <div className="flex w-full">
+
+            <div className="flex gap-4 mt-2">
               <button
-                className="bg-gray-300 text-white py-2 rounded-md hover:bg-gray-400 transition w-full mr-1"
+                className="w-1/2 py-2 rounded-lg bg-white/20 hover:bg-white/30 backdrop-blur-lg transition-all text-white font-semibold text-lg"
                 onClick={() => {
                   setOpen(false);
                   setNoName(false);
@@ -55,8 +59,9 @@ function NewBoardMenu({ open, setOpen }: Props) {
               >
                 Відмінити
               </button>
+
               <button
-                className="bg-green-500 text-white py-2 rounded-md hover:bg-green-600 transition w-full ml-1"
+                className="w-1/2 py-2 rounded-lg bg-gradient-to-r from-indigo-700 to-indigo-900 hover:from-indigo-600 hover:to-indigo-800 transition-all font-semibold text-white text-lg"
                 onClick={createProject}
               >
                 Створити
