@@ -202,7 +202,9 @@ export default function MapView() {
       localStorage.setItem('damageAnalysisSummary', JSON.stringify(analysis));
       
       // Подія для сповіщення інших компонентів
-      window.dispatchEvent(new Event('damageAnalysisUpdated'));
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('damageAnalysisUpdated'));
+      }
       
       console.log("Аналіз завершено:", data);
     } catch (error) {
