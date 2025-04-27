@@ -4,7 +4,7 @@ import MapView from "../components/MapView";
 import LeftPanel from "../components/LeftPanel";
 import RightPanel from "../components/RightPanel";
 
-export default function MapPage() {
+export default function MapViewClient() {
   return (
     <div className="h-screen w-screen flex">
       <LeftPanel />

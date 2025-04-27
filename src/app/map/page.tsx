@@ -1,4 +1,3 @@
-// app/map/page.tsx
 import MapViewClient from './ClientPart';
 
 export default function MapPage() {
