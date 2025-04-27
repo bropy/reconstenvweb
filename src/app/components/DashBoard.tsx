@@ -37,6 +37,7 @@ function DashBoard({ setOpen }: Props) {
   }, []);
 
 
+
   return (
     <div className="m-4 p-4 rounded-lg from-blue-500 to-blue-900 text-white">
       <div className="flex justify-between items-center bg-white/20 backdrop-blur-xl rounded-lg p-4 mb-6">
