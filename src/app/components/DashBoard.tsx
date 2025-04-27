@@ -19,17 +19,17 @@ function DashBoard({ setOpen }: Props) {
     const randomProjects: Project[] = [
       {
         id: 1,
-        name: "Project Alpha",
+        name: "Харків",
         createdAt: new Date(),
       },
       {
         id: 2,
-        name: "Project Beta",
+        name: "Херсон",
         createdAt: new Date(),
       },
       {
         id: 3,
-        name: "Project Gamma",
+        name: "Ізюм",
         createdAt: new Date(),
       },
     ];
