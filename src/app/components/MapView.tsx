@@ -5,7 +5,7 @@ import { MapContainer, TileLayer, FeatureGroup } from "react-leaflet";
 import { EditControl } from "react-leaflet-draw";
 import jsPDF from "jspdf";
 import L from "leaflet";
-import "@types/leaflet-draw";
+import "leaflet-draw";
 import { motion } from "framer-motion";
 import { ZoneData, AnalysisResponse, DamageAnalysis } from "../types/type";
 import html2canvas from "html2canvas";
@@ -177,7 +177,7 @@ export default function MapView() {
       console.log("Дані для надсилання:", JSON.stringify(dataToSend, null, 2));
 
       // Використовуємо fetch для відправки даних на API
-      const response = await fetch("http://127.0.0.1:8000/reconst/damage-zones-analysis/", {
+      const response = await fetch("https://mltplrccnt.pythonanywhere.com/reconst/damage-zones-analysis/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
