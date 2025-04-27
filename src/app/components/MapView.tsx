@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { MapContainer, TileLayer, FeatureGroup } from "react-leaflet";
 import { EditControl } from "react-leaflet-draw";
-import jsPDF from "jspdf";
 import L from "leaflet";
 import "leaflet-draw";
 import { motion } from "framer-motion";
@@ -26,7 +25,7 @@ export default function MapView() {
   const [damageAnalysis, setDamageAnalysis] = useState<DamageAnalysis | null>(null);
 
   const damageOptions = [25, 50, 75, 100];
-
+console.log(analysisData);
   const getColorByDamage = (percent: number) => {
     if (percent >= 100) return "red";
     if (percent >= 75) return "orangered";
